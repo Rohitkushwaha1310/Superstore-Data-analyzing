@@ -1,0 +1,12 @@
+emp_id,name,department,region,sales_q1,sales_q2,sales_q3,join_date,status
+101,Alice Johnson,Sales,North,15000.0,18200.0,21000.0,2021-03-15,Active
+102,bob smith,Marketing,South,12000.0,16180.0,14500.0,2020-07-22,active
+103,Charlie Brown,Sales,East,13887.5,16800.0,19200.0,2022-01-10,ACTIVE
+104,unknown,HR,West,9500.0,10200.0,19077.78,2019-11-05,Active
+105,Eve Davis,Sales,unknown,22000.0,24500.0,27800.0,2023-06-01,Active
+106,frank wilson,Sales,East,13887.5,13900.0,15600.0,2021-09-14,Inactive
+107,Grace Lee,Finance,North,18500.0,19800.0,22100.0,,Active
+108,Henry  Clark,Sales,West,14200.0,15600.0,17800.0,2020-04-30,active
+109,Isabella Moore,Marketing,North,11000.0,12400.0,19077.78,2022-08-17,Active
+110,James Taylor,Finance,South,13887.5,21000.0,23500.0,2021-12-01,INACTIVE
+111,karen white,HR,East,8900.0,9400.0,10200.0,2019-06-15,Active
