@@ -38,6 +38,8 @@ q2=run_query("""
                     ORDER BY SUM("Sales")DESC)AS Sales_Rank
 
     FROM superstore
+    WHERE "Region" IS NOT NULL
+    AND "Category" IS NOT NULL
     GROUP BY "Customer Name", "Region"
     ORDER BY "Region", Sales_Rank                
 
@@ -66,5 +68,49 @@ q3 = run_query("""
     SELECT * FROM profit_ratio
     ORDER BY Profit_Margin DESC
 """)
-print("Regional Category Performance:")
-print(q3)
+# print("Regional Category Performance:")
+# print(q3)
+
+
+q4 = run_query("""
+    WITH monthly_sales AS (
+        SELECT 
+            DATE_TRUNC('month', "Order Date"::timestamp) AS Month,
+            ROUND(CAST(SUM("Sales") AS NUMERIC), 2) AS Total_Sales
+        FROM superstore
+        GROUP BY DATE_TRUNC('month', "Order Date"::timestamp)
+        ORDER BY Month
+    )
+    SELECT 
+        Month,
+        Total_Sales,
+        LAG(Total_Sales) OVER (ORDER BY Month) AS Prev_Month_Sales,
+        ROUND(CAST((Total_Sales - LAG(Total_Sales) 
+              OVER (ORDER BY Month)) AS NUMERIC), 2) AS MoM_Change
+    FROM monthly_sales
+    ORDER BY Month
+    LIMIT 10
+""")
+# print("Month over Month Sales:")
+# print(q4)     
+
+
+q5 = run_query("""
+    SELECT 
+        "Customer Name",
+        "Segment",
+        ROUND(CAST(SUM("Sales") AS NUMERIC), 2) AS Total_Sales,
+        ROUND(CAST(SUM("Profit") AS NUMERIC), 2) AS Total_Profit
+    FROM superstore
+    WHERE "Customer Name" IN (
+        SELECT "Customer Name"
+        FROM superstore
+        GROUP BY "Customer Name"
+        HAVING SUM("Sales") > 5000
+    )
+    GROUP BY "Customer Name", "Segment"
+    ORDER BY Total_Profit DESC
+    LIMIT 10
+""")
+print("High Value Customers:")
+print(q5)
