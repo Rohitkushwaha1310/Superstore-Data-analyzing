@@ -37,31 +37,59 @@ df= pd.read_csv("superstore.csv", encoding='Latin-1')
 #     print("❌ FAIL TO REJECT H0 — No significant difference!")
 
 
-tech = df[df['Category']== 'Technology']['Sales'].dropna()  
-furniture = df[df['Category']== 'Furniture']['Sales'].dropna() 
+# tech = df[df['Category']== 'Technology']['Sales'].dropna()  
+# furniture = df[df['Category']== 'Furniture']['Sales'].dropna() 
 
 
-print("group stats")
-print(f"Technology mean : {tech.mean():.2f}")
-print(f"Furniture mean : {furniture.mean():.2f}")
-print(f"tech std:{tech.std():.2f}")
-print(f"furniture std:{furniture.std():.2f}")
+# print("group stats")
+# print(f"Technology mean : {tech.mean():.2f}")
+# print(f"Furniture mean : {furniture.mean():.2f}")
+# print(f"tech std:{tech.std():.2f}")
+# print(f"furniture std:{furniture.std():.2f}")
 
-# 2 sampel test
+# # 2 sampel test
 
-t_stat, p_value = stats.ttest_ind(tech, furniture, equal_var=False)
+# t_stat, p_value = stats.ttest_ind(tech, furniture, equal_var=False)
 
-print(" two sample test")
-print(f"T-stataistics : {t_stat:.4f}")
-print(f"p_value : {p_value:.6f}")
+# print(" two sample test")
+# print(f"T-stataistics : {t_stat:.4f}")
+# print(f"p_value : {p_value:.6f}")
+
+# if p_value < 0.05:
+#     print("✅ REJECT H0 — Significant difference between groups!")
+# else:
+#     print("❌ FAIL TO REJECT — No significant difference!")
+
+
+# plt.figure(figsize=(10,5))
+# sns.boxplot(x="Category", y="Sales", data=df)
+# plt.title("salles distributin by category")
+# plt.show()
+
+
+#chi sqaure test
+contingency= pd.crosstab(df['Region'], df['Category'])
+print(" contingency table")
+print(contingency)
+
+
+chi_2, p_value, dof, expected = stats.chi2_contingency(contingency)
+
+print("chi square test")
+print(f"Chi-square statistic: {chi_2:.4f}")
+print(f"p_value: {p_value:.6f}")
+print(f"degree of freedom: {dof}")
 
 if p_value < 0.05:
-    print("✅ REJECT H0 — Significant difference between groups!")
+    print("✅ REJECT H0 — Region & Category ARE related!")
 else:
-    print("❌ FAIL TO REJECT — No significant difference!")
-
-
-plt.figure(figsize=(10,5))
-sns.boxplot(x="Category", y="Sales", data=df)
-plt.title("salles distributin by category")
+    print("❌ FAIL TO REJECT — Region & Category independent!")
+plt.figure(figsize=(10,6))
+contingency_pct= contingency.div(contingency.sum(axis=1), axis=0)
+contingency_pct.plot(kind='bar', stacked=True, colormap='Set2', figsize=(10,6))
+plt.title("Category distribution by region")
+plt.xlabel("Region")
+plt.ylabel("Proportion")
+plt.legend(title="Category")
+plt.tight_layout()
 plt.show()
