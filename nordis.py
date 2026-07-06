@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+from scipy.stats import expon
 from scipy.stats import poisson
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-fig.suptitle('Poisson Distribution', fontsize=16)
+fig.suptitle('Exponential Distribution ', fontsize=16)
 
 # # Generate normal data
 # np.random.seed(42)
@@ -87,37 +88,41 @@ fig.suptitle('Poisson Distribution', fontsize=16)
 # print(f"P(more than 35)      : {prob_35_plus:.4f}")
 # print(f"P(less than 25)      : {stats.binom.cdf(24, n, p):.4f}")
 
-lambda_rate = 10  
+# 
+from scipy.stats import expon
 
-x = np.arange(0, 25)
-pmf = poisson.pmf(x, lambda_rate)
+# Scenario:
+# Average time between orders = 6 minutes
+# What is probability of waiting X minutes?
 
-# Chart 1 — Poisson distribution
-axes[0].bar(x, pmf, color='green', alpha=0.7)
-axes[0].axvline(lambda_rate, color='red',
-                linestyle='--', label=f'λ={lambda_rate}')
-axes[0].set_title('Orders per Hour (λ=10)')
-axes[0].set_xlabel('Number of orders')
-axes[0].set_ylabel('Probability')
+scale = 6  # average time between orders
+
+x = np.linspace(0, 40, 1000)
+pdf = expon.pdf(x, scale=scale)
+
+# Chart 1 — Exponential curve
+axes[0].plot(x, pdf, 'b-', linewidth=2)
+axes[0].fill_between(x, pdf, alpha=0.3, color='blue')
+axes[0].axvline(scale, color='red', linestyle='--',
+                label=f'Mean={scale} mins')
+axes[0].set_title('Time Between Orders')
+axes[0].set_xlabel('Minutes')
 axes[0].legend()
 
-# Chart 2 — Compare different lambda values
-for lam, color in zip([5, 10, 20], ['blue', 'green', 'red']):
-    pmf_temp = poisson.pmf(x, lam)
-    axes[1].plot(x, pmf_temp, 'o-',
-                 color=color, label=f'λ={lam}')
-axes[1].set_title('Poisson with Different λ values')
-axes[1].set_xlabel('Number of orders')
-axes[1].legend()
+# Chart 2 — Probability of waiting more than X mins
+probs = [1-expon.cdf(t, scale=scale) for t in range(0, 31, 5)]
+axes[1].bar(range(0, 31, 5), probs, color='orange',
+            width=4, alpha=0.7)
+axes[1].set_title('P(Wait > X minutes)')
+axes[1].set_xlabel('Minutes')
+axes[1].set_ylabel('Probability')
 
 plt.tight_layout()
 plt.show()
 
-print("=== POISSON ANALYSIS ===")
-print(f"P(exactly 10 orders) : {poisson.pmf(10, lambda_rate):.4f}")
-print(f"P(more than 15)      : {1-poisson.cdf(15, lambda_rate):.4f}")
-print(f"P(less than 5)       : {poisson.cdf(4, lambda_rate):.4f}")
-print(f"Mean = Variance      : {lambda_rate} = {lambda_rate}")
-
+print("=== EXPONENTIAL ANALYSIS ===")
+print(f"P(wait > 6 mins)  : {1-expon.cdf(6, scale=scale):.4f}")
+print(f"P(wait > 10 mins) : {1-expon.cdf(10, scale=scale):.4f}")
+print(f"P(wait < 3 mins)  : {expon.cdf(3, scale=scale):.4f}")
 
 
