@@ -67,29 +67,89 @@ df= pd.read_csv("superstore.csv", encoding='Latin-1')
 # plt.show()
 
 
-#chi sqaure test
-contingency= pd.crosstab(df['Region'], df['Category'])
-print(" contingency table")
-print(contingency)
+# #chi sqaure test
+# contingency= pd.crosstab(df['Region'], df['Category'])
+# print(" contingency table")
+# print(contingency)
 
 
-chi_2, p_value, dof, expected = stats.chi2_contingency(contingency)
+# chi_2, p_value, dof, expected = stats.chi2_contingency(contingency)
 
-print("chi square test")
-print(f"Chi-square statistic: {chi_2:.4f}")
+# print("chi square test")
+# print(f"Chi-square statistic: {chi_2:.4f}")
+# print(f"p_value: {p_value:.6f}")
+# print(f"degree of freedom: {dof}")
+
+# if p_value < 0.05:
+#     print("✅ REJECT H0 — Region & Category ARE related!")
+# else:
+#     print("❌ FAIL TO REJECT — Region & Category independent!")
+# plt.figure(figsize=(10,6))
+# contingency_pct= contingency.div(contingency.sum(axis=1), axis=0)
+# contingency_pct.plot(kind='bar', stacked=True, colormap='Set2', figsize=(10,6))
+# plt.title("Category distribution by region")
+# plt.xlabel("Region")
+# plt.ylabel("Proportion")
+# plt.legend(title="Category")
+# plt.tight_layout()
+# plt.show()
+
+
+
+#A/B testing 
+# lets take customer 500
+n= 500
+group_a= np.random.normal(
+    loc= 200,
+    scale=50,
+    size=n
+)
+
+group_b = np.random.normal(
+    loc=220,
+    scale=55,
+    size=n
+)
+
+t_stat, p_value = stats.ttest_ind(group_a, group_b, equal_var=False)
+
+print("A/B testing result")
+print(f"Group A mean: ${group_a.mean():.2f}")
+print(f"Group B mean: ${group_b.mean():.2f}")
+print(f"difference: ${group_b.mean()- group_a.mean():.2f}")
+print(f"t-statistics : {t_stat:.4f}")
 print(f"p_value: {p_value:.6f}")
-print(f"degree of freedom: {dof}")
 
-if p_value < 0.05:
-    print("✅ REJECT H0 — Region & Category ARE related!")
+if ( p_value < 0.05):
+    print("b is signifancily better - launch it ")
 else:
-    print("❌ FAIL TO REJECT — Region & Category independent!")
-plt.figure(figsize=(10,6))
-contingency_pct= contingency.div(contingency.sum(axis=1), axis=0)
-contingency_pct.plot(kind='bar', stacked=True, colormap='Set2', figsize=(10,6))
-plt.title("Category distribution by region")
-plt.xlabel("Region")
-plt.ylabel("Proportion")
-plt.legend(title="Category")
+    print(" no significance difference - keep it ")
+
+
+fig, axes= plt.subplots(1,2, figsize=(14,5))   
+fig.suptitle("A/B discount strategies") 
+
+axes[0].hist(group_a, bins=30, alpha=0.6,
+             color='blue', label='Group A (10%)')
+axes[0].hist(group_b, bins=30, alpha=0.6,
+             color='orange', label='Group B (20%)')
+axes[0].axvline(group_a.mean(), color='blue',
+                linestyle='--')
+axes[0].axvline(group_b.mean(), color='orange',
+                linestyle='--')
+axes[0].set_title('Sales Distribution A vs B')
+axes[0].legend()
+
+axes[1].boxplot([group_a, group_b],
+                labels=['Group A\n10% discount',
+                        'Group B\n20% discount'])
+axes[1].set_title('Box Plot Comparison')
+axes[1].set_ylabel('Sales')
+
 plt.tight_layout()
 plt.show()
+
+uplift = (group_b.mean() - group_a.mean()) / group_a.mean() * 100
+print(f"\nSales uplift    : {uplift:.2f}%")
+print(f"Extra revenue   : ${(group_b.mean()-group_a.mean())*1000:.0f}")
+print(f"(if 1000 customers)")
