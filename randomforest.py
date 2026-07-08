@@ -50,14 +50,14 @@ rf_r2 = r2_score(y_test, rf_pred)
 rf_rmse = np.sqrt(mean_squared_error(y_test, rf_pred))
 
 
-print("=" * 45)
-print(f"{'Model':<20} {'R²':>8} {'RMSE':>12}")
-print("=" * 45)
-print(f"{'Linear Regression':<20} {lr_r2:>8.4f} {lr_rmse:>12.2f}")
-print(f"{'Random Forest':<20} {rf_r2:>8.4f} {rf_rmse:>12.2f}")
-print("=" * 45)
-print(f"R² improvement  : {((rf_r2-lr_r2)/abs(lr_r2)*100):.1f}%")
-print(f"RMSE improvement: {((lr_rmse-rf_rmse)/lr_rmse*100):.1f}%")
+# print("=" * 45)
+# print(f"{'Model':<20} {'R²':>8} {'RMSE':>12}")
+# print("=" * 45)
+# print(f"{'Linear Regression':<20} {lr_r2:>8.4f} {lr_rmse:>12.2f}")
+# print(f"{'Random Forest':<20} {rf_r2:>8.4f} {rf_rmse:>12.2f}")
+# print("=" * 45)
+# print(f"R² improvement  : {((rf_r2-lr_r2)/abs(lr_r2)*100):.1f}%")
+# print(f"RMSE improvement: {((lr_rmse-rf_rmse)/lr_rmse*100):.1f}%")
 
 
 #visualization
@@ -85,4 +85,34 @@ for i, v in enumerate(r2s):
                  ha='center', fontweight='bold')
 
 plt.tight_layout()
-plt.show()                 
+# plt.show()     
+
+
+
+#Feature importance 
+immportance_df = pd.DataFrame({
+    'Feature' : x.columns,
+    'Importance': rf.feature_importances_
+}).sort_values('Importance', ascending= False)
+
+
+# print("Fetaure Importance")
+# print(immportance_df.to_string())
+
+#viualisation
+
+plt.figure(figsize =(10,6))
+sns.barplot(
+    x='Importance',
+    y= 'Feature',
+    data = immportance_df,
+    palette = 'viridis'
+)
+
+plt.title('Random forest - fetaure importance ')
+plt.xlabel('Importance Score')
+plt.tight_layout()
+# plt.show()
+
+
+
