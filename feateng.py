@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import r2_score, mean_squared_error
 df = pd.read_csv("superstore.csv")
 df= df.dropna(subset=['Sales', 'Order Date'])
 
@@ -132,3 +135,54 @@ axes[1].barh(product_agg['Sub-Category'],
 axes[1].set_title('Avg Profit by Sub-Category')
 # plt.tight_layout()
 # plt.show()
+
+## buildinng ml model by feature engineerinng 
+df_ml = pd.get_dummies(df[[
+    'Sales', 'Quantity','Discount',
+    'Month', 'Quarter', 'DaysToShip',
+    'IsWeekend', 'Sales_per_Qty',
+    'Discount_Impact', 'Category',
+    'Region', 'Segment'
+]].dropna(), columns=['Category', 'Region', 'Segment'], drop_first=True)
+
+x= df_ml.drop('Sales', axis=1)
+y= df_ml['Sales']
+X_train , X_test, y_train, y_test= train_test_split(
+     x,y, test_size=0.2, random_state=42
+)
+
+rf_basic = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_basic.fit(X_train[['Quantity', 'Discount']],y_train)
+basic_r2 = r2_score(y_test, rf_basic.predict(X_test[['Quantity', 'Discount']]))
+
+
+# mmodel with enginner
+rf_eng = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_eng.fit(X_train, y_train)
+eng_r2 = r2_score(y_test, rf_eng.predict(X_test))
+eng_rmse = np.sqrt(mean_squared_error(
+    y_test, rf_eng.predict(X_test)))
+
+print("=" * 45)
+print(f"Basic RF R²      : {basic_r2:.4f}")
+print(f"Engineered RF R² : {eng_r2:.4f}")
+print(f"Improvement      : {((eng_r2-basic_r2)/abs(basic_r2)*100):.1f}%")
+print(f"RMSE             : {eng_rmse:.2f}")
+
+
+
+importance = pd.DataFrame({
+    'Feature'    : x.columns,
+    'Importance' : rf_eng.feature_importances_
+}).sort_values('Importance', ascending=False).head(10)
+
+print("\n=== TOP 10 FEATURES ===")
+print(importance.to_string())
+
+plt.figure(figsize=(10, 6))
+plt.barh(importance['Feature'],
+         importance['Importance'],
+         color='steelblue')
+plt.title('Top 10 Feature Importances')
+plt.tight_layout()
+plt.show()
