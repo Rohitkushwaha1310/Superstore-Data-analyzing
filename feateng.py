@@ -81,9 +81,54 @@ axes[1].set_title('Log Sales')
 df['Sales_Category'].value_counts().plot(kind='bar', ax=axes[2], color='orange')
 axes[2].set_title('Log Sales')
 plt.tight_layout()
-plt.show()
+# plt.show()
 
 
-print(f"Original Skewness : {df['Sales'].skew():.2f}")
-print(f"Log Skewness      : {df['Sales_Log'].skew():.2f}")
-print(df['Sales_Category'].value_counts())
+# print(f"Original Skewness : {df['Sales'].skew():.2f}")
+# print(f"Log Skewness      : {df['Sales_Log'].skew():.2f}")
+# print(df['Sales_Category'].value_counts())
+
+
+#aggreation Feature
+customer_agg = df.groupby('Customer Name').agg(
+    Total_Sales = ('Sales',   'sum'),
+    Total_orders= ('Order ID', 'count'),
+    Avg_Order_Value = ('Sales', 'mean'),
+    Total_Profit = ('Profit', 'sum'),
+    Avg_Discount = ('Discount', 'mean')
+).reset_index()
+
+customer_agg['Profit_Rate']=(
+    customer_agg['Total_Profit']/customer_agg['Total_Sales']*100
+).round(2)
+
+# print(" customer aggregations")
+# print(customer_agg.sort_values(
+#     'Total_Sales', ascending=False
+# ).head(10))
+
+
+#product leve aggregations
+product_agg = df.groupby('Sub-Category').agg(
+    Total_Sales =('Sales',  'sum'),
+    Avg_Profit  =('Profit', 'mean'),
+    Order_Count =('Order ID','count'),
+    Avg_Discount=('Discount','mean')
+).reset_index().sort_values('Total_Sales', ascending=False)
+
+print("\n=== PRODUCT AGGREGATIONS ===")
+print(product_agg.to_string())
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+axes[0].barh(product_agg['Sub-Category'],
+             product_agg['Total_Sales'],
+             color='steelblue')
+axes[0].set_title('Total Sales by Sub-Category')
+
+axes[1].barh(product_agg['Sub-Category'],
+             product_agg['Avg_Profit'],
+             color=['green' if x > 0 else 'red' 
+                    for x in product_agg['Avg_Profit']])
+axes[1].set_title('Avg Profit by Sub-Category')
+# plt.tight_layout()
+# plt.show()
