@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import GridSearchCV
 
 
 
@@ -115,4 +116,47 @@ plt.tight_layout()
 # plt.show()
 
 
+#hyperparamenter grid
+param_grid = {
+    'n_estimators' : [50, 100, 200],
+    'max_depth'    : [5, 10, None],
+    'min_samples_split': [2, 5, 10]
+}
 
+# GridSearchCV explanation:
+# estimator = model to tune
+# param_grid = combinations to try
+# cv = cross validation folds
+# scoring = metric to optimize
+# n_jobs = use all CPU cores
+
+print("🔍 Searching best parameters...")
+print("This may take 1-2 minutes...")
+
+grid_search = GridSearchCV(
+    estimator  = RandomForestRegressor(random_state=42),
+    param_grid = param_grid,
+    cv         = 3,
+    scoring    = 'r2',
+    n_jobs     = -1,
+    verbose    = 1
+)
+
+grid_search.fit(X_train, y_train)
+
+print("\n=== GRID SEARCH RESULTS ===")
+print(f"Best parameters : {grid_search.best_params_}")
+print(f"Best CV R²      : {grid_search.best_score_:.4f}")
+
+# ---- EVALUATE BEST MODEL ----
+best_model = grid_search.best_estimator_
+best_pred  = best_model.predict(X_test)
+best_r2    = r2_score(y_test, best_pred)
+best_rmse  = np.sqrt(mean_squared_error(y_test, best_pred))
+
+print(f"\n=== BEST MODEL RESULTS ===")
+print(f"Default RF R²   : {rf_r2:.4f}")
+print(f"Tuned RF R²     : {best_r2:.4f}")
+print(f"Default RMSE    : {rf_rmse:.2f}")
+print(f"Tuned RMSE      : {best_rmse:.2f}")
+print(f"Improvement     : {((best_r2-rf_r2)/rf_r2*100):.1f}%")
