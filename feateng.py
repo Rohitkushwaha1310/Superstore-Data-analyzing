@@ -167,7 +167,7 @@ print("=" * 45)
 print(f"Basic RF R²      : {basic_r2:.4f}")
 print(f"Engineered RF R² : {eng_r2:.4f}")
 print(f"Improvement      : {((eng_r2-basic_r2)/abs(basic_r2)*100):.1f}%")
-print(f"RMSE             : {eng_rmse:.2f}")
+print(f"RMSE value            : {eng_rmse:.2f}")
 
 
 
