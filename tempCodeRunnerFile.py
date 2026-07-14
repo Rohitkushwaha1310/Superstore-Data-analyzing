@@ -1,1 +1,1 @@
-print(df.head())
+Is_Profitable
