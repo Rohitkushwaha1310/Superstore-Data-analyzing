@@ -94,3 +94,108 @@ plt.tight_layout()
 
 
 
+threshold= [0.3, 0.4, 0.5, 0.6, 0.7]
+
+print("thresold analyssis")
+print(f"{'Threshold':<12} {'Precision':>10} {'Recall':>8} {'F1':>8}")
+
+results = []
+for thresh in threshold:
+    pred= (lr_proba >= thresh).astype(int)
+    p = precision_score(y_test, pred)
+    r = recall_score(y_test, pred)
+    f= f1_score(y_test, pred)
+    results.append([thresh, p, r,f])
+    print(f"{thresh:<12}{p:>10.4f}{r:>8.4f} {f:>8.4f}")
+
+# visualisation
+results_df = pd.DataFrame(results,
+                columns=['Threshold', 'Precision', 'Recall', 'F1'])    
+plt.figure(figsize=(10, 5))
+plt.plot(results_df['Threshold'],
+         results_df['Precision'],
+         'b-o', label='Precision')
+plt.plot(results_df['Threshold'],
+         results_df['Recall'],
+         'g-o', label='Recall')
+plt.plot(results_df['Threshold'],
+         results_df['F1'],
+         'r-o', label='F1 Score')
+plt.xlabel('Threshold')
+plt.ylabel('Score')
+plt.title('Metrics vs Threshold')
+plt.legend()
+plt.grid(True)
+# plt.tight_layout()
+# plt.show()         
+
+
+
+
+cost_fn= 150 #suppose
+cost_fp = 50
+threshold = np.arange(0.1, 0.9, 0.05)
+total_costs = []
+
+for thresh in threshold:
+    pred = (lr_proba >= thresh).astype(int)
+    cm = confusion_matrix(y_test, pred)
+    tn, fp, fn, tp = cm.ravel()
+
+    cost = (fn* cost_fn)+ (fp*cost_fp)
+    total_costs.append(cost)
+
+best_idx = np.argmin(total_costs)
+best_thresh = threshold[best_idx]
+best_cost = total_costs[best_idx]
+
+print("bussiness costs analysis")
+print(f"cost per missed loss: ${cost_fn}")
+print(f"cost per blocked order: ${cost_fp}")
+print(f"Best threshold: {best_thresh:.2f}")
+print(f"minimum total cost: ${best_cost:,.0f}")
+
+fig, axes = plt.subplots(1,2, figsize=(14,5))
+
+axes[0].plot(threshold, total_costs,
+                'r-o', linewidth=2)
+axes[0].axvline(best_thresh, color='green',
+                    linestyle='--',
+                    label=f'Optimal= {best_thresh:.2f}')
+
+axes[0].set_xlabel('Threshold')
+axes[0].set_ylabel('Total bussiness cost')
+axes[0].set_title('Bussiness cost vs threshild')   
+axes[0].legend()  
+
+
+# trying cost at aother threshhold
+thresh_sample = [0.3, 0.4, 0.5, 0.6, 0.7]
+costs_sample  = []
+for t in thresh_sample:
+    pred = (lr_proba >= t).astype(int)
+    cm   = confusion_matrix(y_test, pred)
+    tn, fp, fn, tp = cm.ravel()
+    costs_sample.append((fn*cost_fn) + (fp*cost_fp))
+
+axes[1].bar([str(t) for t in thresh_sample],
+            costs_sample, color='steelblue',
+            edgecolor='white')
+axes[1].set_title('Total Cost by Threshold')
+axes[1].set_xlabel('Threshold')
+axes[1].set_ylabel('Total Cost ($)')
+for i, v in enumerate(costs_sample):
+    axes[1].text(i, v+100, f'${v:,.0f}',
+                ha='center', fontsize=9)
+
+plt.tight_layout()
+plt.show()
+
+print("\n=== THRESHOLD COST BREAKDOWN ===")
+print(f"{'Thresh':<8} {'FN Cost':>10} {'FP Cost':>10} {'Total':>10}")
+
+for t, c in zip(thresh_sample, costs_sample):
+    pred = (lr_proba >= t).astype(int)
+    cm   = confusion_matrix(y_test, pred)
+    tn, fp, fn, tp = cm.ravel()
+    print(f"{t:<8} ${fn*cost_fn:>8,} ${fp*cost_fp:>8,} ${c:>8,}")
