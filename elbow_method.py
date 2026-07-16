@@ -77,7 +77,9 @@ optimal_k= 5
 km_final= KMeans(n_clusters=optimal_k,
                     random_state=42, n_init=10)
 
-customer['Cluster']= km_final.labels_
+km_final.fit(x_scaled)                    
+
+customer['Cluster'] = km_final.labels_
 
 
 print(" cluster distribution")
@@ -99,7 +101,7 @@ fig.suptitle('Customer cluster analysis')
 
 scatter = axes[0,0].scatter(
     customer['Total_Sales'],
-    customer['Total_Profile'],
+    customer['Total_Profit'],
     c= customer['Cluster'],
     cmap='viridis', alpha=0.6
 )
@@ -109,4 +111,44 @@ axes[0,0].set_ylabel('Total Profit')
 axes[0,0].set_title('Sales vs prfit by cluster')
 plt.colorbar(scatter, ax=axes[0,0])
 
-#order count vs 
+#order count vs  avg discounnt
+
+axes[0,1].scatter(
+    customer['Order_Count'],
+    customer['Avg_Discount'],
+    c=customer['Cluster'],
+    cmap='viridis', alpha=0.6
+)
+axes[0,1].set_xlabel('Order count')
+axes[0,1].set_ylabel('Avg discounnt')
+axes[0,1].set_title('Orders vs Discount by cluster')
+
+
+#cluster Sizes
+cluster_sizes = customer['Cluster'].value_counts().sort_index()
+axes[1,0].bar(cluster_sizes.index,
+              cluster_sizes.values,
+              color = ['#2ecc71','#3498db','#e74c3c',
+                     '#f39c12','#9b59b6'])
+
+axes[1,0].set_title('Customers per cluster')
+axes[1,0].set_xlabel('Cluster')
+axes[1,0].set_ylabel;("count")
+
+
+#radar cgarts cluster profile
+profile_norm = (profile - profile.min())/(profile.max()- profile.min())
+colors = ['#2ecc71','#3498db','#e74c3c',
+                     '#f39c12','#9b59b6']
+
+for i in range(optimal_k):
+    axes[1,1].plot(features, profile_norm.iloc[i],
+                    'o-', color = colors[i], label= f'cluster {i}')
+
+
+axes[1,1].set_title('Normalized Cluster Profiles')
+axes[1,1].legend(loc='upper right', fontsize=7)
+axes[1,1].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
