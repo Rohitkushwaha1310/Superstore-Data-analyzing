@@ -163,7 +163,50 @@ cluster_names = {
     4: 'Mass Market'
 }
 
-customr['Segment_name']= customer['Cluster'].mapp(cluster_names)
+customer['Segment_name']= customer['Cluster'].map(cluster_names)
 
 
-rpint("Cluster bussiness Profiles")
+print("Cluster bussiness Profiles")
+for cluster_id, name in cluster_names.items():
+    group = customer[customer['Cluster'] == cluster_id]
+    print(f"Cluster {cluster_id}: {name}")
+    print(f"  Customers    : {len(group)}")
+    print(f"  Avg Sales    : ${group['Total_Sales'].mean():,.0f}")
+    print(f"  Avg Profit   : ${group['Total_Profit'].mean():,.0f}")
+    print(f"  Avg Orders   : {group['Order_Count'].mean():.1f}")
+    print(f"  Avg Discount : {group['Avg_Discount'].mean()*100:.1f}%")
+
+
+print("top customer per cluster")    
+for cluster_id, name in cluster_names.items():
+    group = customer[customer['Cluster']==cluster_id]
+    top = group.nlargest(1,'Total_Sales')[
+        ['Customer Name','Total_Sales','Total_Profit']]
+    print(f"Cluster {cluster_id} ({name}): "
+          f"{top['Customer Name'].values[0]} "
+          f"(${top['Total_Sales'].values[0]:,.0f})")
+
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+
+seg_revenue = customer.groupby('Segment_name')['Total_Sales'].sum()
+axes[0].bar(seg_revenue.index, seg_revenue.values,
+            color=['#2ecc71','#3498db','#e74c3c',
+                   '#f39c12','#9b59b6'])
+axes[0].set_title('Total Revenue by Segment')
+axes[0].set_xlabel('Segment')
+axes[0].tick_params(axis='x', rotation=45)
+
+
+seg_profit = customer.groupby('Segment_name')['Total_Profit'].sum()
+colors_bar = ['green' if x > 0 else 'red'
+              for x in seg_profit.values]
+axes[1].bar(seg_profit.index, seg_profit.values,
+            color=colors_bar)
+axes[1].set_title('Total Profit by Segment')
+axes[1].set_xlabel('Segment')
+axes[1].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()          
