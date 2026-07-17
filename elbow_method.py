@@ -33,8 +33,8 @@ x= customer[features]
 scaler = StandardScaler()
 x_scaled = scaler.fit_transform(x)
 
-print(f"\nOriginal Sales range : {x['Total_Sales'].min():.0f} - {x['Total_Sales'].max():.0f}")
-print(f"scales sales range: {x_scaled[:,0].min():.2f} - {x_scaled[:,0].max():.2f}")
+# print(f"\nOriginal Sales range : {x['Total_Sales'].min():.0f} - {x['Total_Sales'].max():.0f}")
+# print(f"scales sales range: {x_scaled[:,0].min():.2f} - {x_scaled[:,0].max():.2f}")
 
 
 
@@ -88,8 +88,8 @@ print(customer['Cluster'].value_counts().sort_index())
 
 # cluster profiles
 profile=customer.groupby('Cluster')[features].mean()
-print("cluster profiles")
-print(profile.round(2).to_string())
+# print("cluster profiles")
+# print(profile.round(2).to_string())
 
 #visualize cluster
 
@@ -150,5 +150,20 @@ axes[1,1].set_title('Normalized Cluster Profiles')
 axes[1,1].legend(loc='upper right', fontsize=7)
 axes[1,1].tick_params(axis='x', rotation=45)
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
+
+
+
+cluster_names = {
+    0: 'Occasional Buyers',
+    1: 'At Risk Customers',
+    2: 'Discount Hunters',
+    3: 'VIP Customers',
+    4: 'Mass Market'
+}
+
+customr['Segment_name']= customer['Cluster'].mapp(cluster_names)
+
+
+rpint("Cluster bussiness Profiles")
