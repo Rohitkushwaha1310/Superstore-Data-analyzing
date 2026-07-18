@@ -182,7 +182,7 @@ for cluster_id, name in cluster_names.items():
     group = customer[customer['Cluster']==cluster_id]
     top = group.nlargest(1,'Total_Sales')[
         ['Customer Name','Total_Sales','Total_Profit']]
-    print(f"Cluster {cluster_id} ({name}): "
+    print(f"Clusters {cluster_id} ({name}): "
           f"{top['Customer Name'].values[0]} "
           f"(${top['Total_Sales'].values[0]:,.0f})")
 
